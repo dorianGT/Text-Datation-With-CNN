@@ -43,3 +43,32 @@ plt.xlabel('Difference entre années prédites et réelles')
 plt.ylabel('Nombre de prédictions') 
 plt.title('Répartition des différences entre les années prédites et réelles') 
 plt.show()
+
+
+#-----------------------------------voir quelle année est la plus dure----------------------------------#
+
+y_pred = model.predict(data_test)
+error_samples = []
+for i in range(len(y_test)):
+    if round(y_pred[i][0]) != y_test[i]:
+        error_samples.append(y_test[i])
+
+#------------------------voir quelle année est la plus dure (tolerance de 15)---------------------------#
+error_samples = []
+tolerance = 15
+for i in range(len(y_test)):
+    if abs(round(y_pred[i][0]) - y_test[i]) > tolerance:
+        error_samples.append(y_test[i])
+
+# Créer un histogramme des années d'erreur
+plt.hist(error_samples, bins=max(y_test)-min(y_test)+1, color='skyblue')
+
+# Ajouter des labels et un titre
+plt.xlabel('Année')
+plt.ylabel('Nombre d\'échantillons mal prédits')
+plt.title('Histogramme des années d\'erreur')
+
+# Afficher l'histogramme
+plt.show()
+
+
