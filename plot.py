@@ -62,13 +62,18 @@ for i in range(len(y_test)):
 
 # Créer un histogramme des années d'erreur
 plt.hist(error_samples, bins=max(y_test)-min(y_test)+1, color='skyblue')
-
-# Ajouter des labels et un titre
 plt.xlabel('Année')
 plt.ylabel('Nombre d\'échantillons mal prédits')
 plt.title('Histogramme des années d\'erreur')
-
-# Afficher l'histogramme
 plt.show()
 
+
+#------------------- Créer un histogramme pour visualiser la répartition des textes par année---------------#
+
+plt.hist(y, bins=range(min(y), max(y) + 1), alpha=0.5,color='skyblue')
+plt.grid(axis='y', linestyle='--')
+plt.xlabel('Année')
+plt.ylabel('Nombre de textes')
+plt.title('Répartition des textes par année')
+plt.show()
 
