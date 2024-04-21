@@ -5,6 +5,8 @@ import tensorflow as tf
 import numpy as np
 import nltk
 import json
+import statistics
+from math import ceil
 from keras.models import load_model
 from nltk.tokenize import word_tokenize
 nltk.download('punkt')
@@ -125,6 +127,8 @@ def GetDataBooks(chemin):
     # Initialiser une liste pour stocker les années extraites des noms de fichiers
     y = []
 
+    ind_file = []
+    ind = 0
     # Parcourir les fichiers et lire leur contenu
     for fichier in fichiers:
         chemin_fichier = os.path.join(chemin, fichier)
@@ -139,7 +143,48 @@ def GetDataBooks(chemin):
                 books.append(texte)
                 annee_int = int(annee.group(1)) # Récupérer l'année
                 y.append(annee_int)  # Ajouter l'année extraite à la liste des labels
-    return books,y
+                ind_file.append(ind)
+        ind += 1
+    return books,y,ind_file
+
+def diviser_liste(liste,labels, taille):
+    resultats = []
+    res_labels = []
+    nb_sequence_per_book = []
+    ind = 0
+    # Parcours de chaque sous-liste dans la liste principale
+    for sous_liste in liste:
+        longueur = len(sous_liste)
+        if(longueur<taille):
+            ind+=1
+            continue
+        nbtour = ceil(longueur / taille)
+        lastpos=0
+        # Division de la sous-liste en morceaux de taille spécifiée
+        nb_sequence = 0
+        for i in range(nbtour):
+            if(lastpos + taille > longueur):
+              if((lastpos + taille)-longueur > taille/2):
+                  break
+              lastpos -= (lastpos + taille)-longueur
+
+            # Ajout du morceau à la liste de résultats
+            resultat = sous_liste[lastpos:lastpos + taille]
+            lastpos = lastpos + taille
+            resultats.append(resultat)
+
+            # A chaque fois que je divisie, jajoute le label au meme indice
+            res_labels.append(labels[ind])
+            nb_sequence += 1
+        ind+=1
+        nb_sequence_per_book.append(nb_sequence)
+
+    # Convertir resultats et res_labels en tableaux numpy
+    resultats = np.array(resultats)
+    res_labels = np.array(res_labels)
+
+    return resultats,res_labels,nb_sequence_per_book
+
 
 def diviser_liste2(liste,taille):
     resultats = []
@@ -150,13 +195,13 @@ def diviser_liste2(liste,taille):
         if(longueur<taille):
             ind+=1
             continue
-        nbtour = round(longueur/taille)
+        nbtour = ceil(longueur / taille)
         lastpos=0
         # Division de la sous-liste en morceaux de taille spécifiée
         for i in range(nbtour):
             if(lastpos + taille > longueur):
-              if((lastpos + taille)-longueur < max_len/2):
-                  continue
+              if((lastpos + taille)-longueur > taille/2):
+                  break
               lastpos -= (lastpos + taille)-longueur
 
             # Ajout du morceau à la liste de résultats
@@ -167,8 +212,8 @@ def diviser_liste2(liste,taille):
 
     # Convertir resultats et res_labels en tableaux numpy
     resultats = np.array(resultats)
-    return resultats
 
+    return resultats
 
 # Chemin du fichier JSON à lire
 path_dict_word = "dict_word.json"
@@ -185,19 +230,50 @@ with open(path_dict_word_freq, "r") as json_file:
 tokenizer = WordTokenizer(dict_word=ditc_word,dict_word_frequence=word_freq)
 
 
-X_test,y_test = GetDataBooks(dossier_test)
+X_test,y_test,ind_file = GetDataBooks(dossier_test)
 sequences_testA,sequences_testB,sequences_testC = tokenizer.tokenize(X_test)
-data_testA = diviser_liste2(sequences_testA, max_len)
+data_testA,y_test,sequence_count_book_test = diviser_liste(sequences_testA,y_test, max_len)
 data_testB = diviser_liste2(sequences_testB, max_len)
 data_testC = diviser_liste2(sequences_testC, max_len)
 test = [data_testA,data_testB,data_testC]
 predictions = model.predict(test)
+model.evaluate(test,y_test)
 
+
+predicted_book_date = np.zeros(len(sequence_count_book_test)) # Liste pour stocker les dates de prédites pour chaque livre
+true_book_date = np.zeros(len(sequence_count_book_test))  # Liste pour stocker les dates réelles
+
+ind = 0
+current = 0
+for nb in sequence_count_book_test: 
+    dates = []  # Liste pour stocker les dates prédites pour chaque séquence
+    # Parcours de séquence
+    for i in range(nb):
+        dates.append(predictions[current])  # Ajouter la prédiction actuelle à la liste des dates
+        current += 1  # Incrémenter l'indice pour obtenir la prochaine prédiction
+
+    # Calculer la moyenne des dates prédites dans cette séquence
+    date = sum(dates) / len(dates)
+    # date = statistics.median(dates)
+    predicted_book_date[ind] = date
+    true_book_date[ind] = y_test[current-1]
+    # # Calculer la différence absolue entre la moyenne prédite et la vérité terrain
+    # diff = abs(date - y_test[current-1])
+    # diff_total += diff
+
+    ind += 1
+
+print(len(ind_file),len(y_test),len(predicted_book_date))
 print('len pred:',len(predictions),' len test:',len(y_test))
 
 fichiers = os.listdir(dossier_test)
 # Comparer les valeurs prédites avec les valeurs réelles
-for i in range(len(predictions)):
-    fichiers[i] = fichiers[i][1:-1]
-    nom_complet = fichiers[i].split(')(')[0:5]
-    print(f"Prédiction : {predictions[i]}, Réel : {y_test[i]}, Livre : {nom_complet}")
+for i in range(len(predicted_book_date)):
+    # fichier = fichiers[ind_file[i]]
+    # nom_complet = fichier.split(')(')[0:5]
+    # print(f"Prédiction : {predicted_book_date[i]}, Réel : {true_book_date[i]}, Livre : {nom_complet}")
+
+    print(f"Prédiction : {predicted_book_date[i]}, Réel : {true_book_date[i]}")
+
+
+
