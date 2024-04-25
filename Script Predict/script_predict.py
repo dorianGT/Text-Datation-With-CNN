@@ -336,7 +336,7 @@ if __name__ == "__main__":
             date = sum(dates) / len(dates) if dates else 0
             # date = statistics.median(dates)
             # Mettre à jour les tableaux avec la date moyenne prédite et la vérité terrain
-            predicted_book_date[ind] = date
+            predicted_book_date[ind] = int(date)
             true_book_date[ind] = y_test[current - 1]
 
             # Calculer la différence absolue entre la moyenne prédite et la vérité terrain
