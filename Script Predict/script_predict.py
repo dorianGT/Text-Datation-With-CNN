@@ -326,7 +326,7 @@ if __name__ == "__main__":
             for i in range(nb):
                 dates.append(predictions[current])  # Ajouter la prédiction actuelle à la liste des dates
                 current += 1  # Incrémenter l'indice pour la prochaine prédiction
-
+        
             # Retirer les valeurs extrêmes
             if len(dates) > 2:
                 dates.remove(min(dates))  # Supprime la valeur minimale

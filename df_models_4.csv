@@ -1,0 +1,2 @@
+Model Name,Sequence Size,MAE,MSE,Sequence Accuracy (toler. 25),Book Accuracy (toler. 25),included_branches,embedding_dim,count_conv1D,conv1D_1_filters,conv1D_1_kernel,pool_size,dense_units_branch,dense_units,dropout
+Model 1,5000,20.938825607299805,814.3167724609375,70.36346691519105,68.11594202898551,"A,C,D",40,3,33,3,2,32,64,0.4
