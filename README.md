@@ -1,4 +1,9 @@
-# Text Dating with CNN
+# Datation de Texte avec CNN
 
 ## Description:
-This project, supervised by N. Vincent and B. Bohet in collaboration with the THALIM laboratory (UMR7172) at Sorbonne Nouvelle University, aims to estimate the date of composition of a text using computational methods. We will employ deep convolutional networks in Python to analyze textual data as time-series, respecting the sequential order of words. By training the model on sufficient data, we aim to classify texts into different time periods. Key stages include text encoding, network implementation, and parameter optimization.
+Ce projet vise à prédire la date de rédaction de textes en utilisant des réseaux de neurones convolutifs (CNN). Notre modèle analyse des séries temporelles de données textuelles pour extraire des caractéristiques utiles et faire des prédictions précises. L'architecture multi-branche utilise des couches de convolution profondes pour capter des motifs locaux. Le rapport détaille les étapes du projet, y compris la conception du réseau, l'entraînement du modèle, et les tests de performance. Les résultats montrent que notre approche basée sur les CNN permet des prédictions précises mais peut être optimisée davantage.
+
+## Structures: 
+Le projet est divisé en 2 parties :
+- Le fichier Main_TER.ipynb contient le code du projet.
+- Les fichiers test, train et validation contiennent les différents livres pour notre jeu de données.
