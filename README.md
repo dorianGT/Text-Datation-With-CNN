@@ -14,5 +14,6 @@ Vous pouvez accéder à un exécutable pour essayer les modèles obtenus en suiv
 C'est un simple script Python utilisable en ligne de commande comme suit :
 ```bash
 python script_predict.py
+```bash
 
 Vous aurez ensuite deux champs à remplir, la localisation du model puis la localisation du ou des fichiers dont vous souhaités prédire la date.
