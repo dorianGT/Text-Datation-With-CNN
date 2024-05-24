@@ -12,6 +12,7 @@ Le projet est divisé en 2 parties :
 Vous pouvez accéder à un exécutable pour essayer les modèles obtenus en suivant ce lien :
 
 C'est un simple script Python utilisable en ligne de commande comme suit :
+Vous pouvez accéder à un exécutable pour essayer les modèles obtenus en suivant ce [lien](https://drive.google.com/file/d/1RZN5q_L0v9gs6kZEE-0pS6EMZEmePmET/view?usp=sharing).
 ```bash
 python script_predict.py
 ```
