@@ -56,14 +56,15 @@ class WordTokenizer:
                 else:
                     self.word_freq[token] = 1
 
-        # Trier les mots par fréquence dans l'ordre décroissant
-        sorted_words = sorted(self.word_freq.items(), key=lambda x: x[1], reverse=True)
-
+        # Trier les mots par fréquence puis par ordre alphabétique pour les mêmes fréquences
+        sorted_words = sorted(self.word_freq.items(), key=lambda x: (-x[1],x[0]))
+        
+        self.index = 1
+        self.dict_word = {}
         # Attribuer des indices en fonction de la fréquence
         for _, (word, _) in enumerate(sorted_words):
-            if word not in self.dict_word:
-                self.dict_word[word] = self.index
-                self.index += 1
+            self.dict_word[word] = self.index
+            self.index += 1
 
         print("\nTokenization complete.")
 
@@ -79,23 +80,20 @@ class WordTokenizer:
             else:
                 # Si le token est déjà présent, incrémente sa fréquence de 1
                 local_word_freq[token] += 1
-        # Retourne le dictionnaire de fréquence locale des mots
-        return local_word_freq
 
-    def get_local_word_freq(self, tokens):
-        # Initialise un dictionnaire pour stocker la fréquence locale des mots
-        local_word_freq = {}
-        # Parcourt tous les tokens dans la liste
-        for token in tokens:
-            # Vérifie si le token n'est pas déjà présent dans le dictionnaire
-            if token not in local_word_freq:
-                # Si le token n'est pas présent, initialise sa fréquence à 1
-                local_word_freq[token] = 1
-            else:
-                # Si le token est déjà présent, incrémente sa fréquence de 1
-                local_word_freq[token] += 1
+        # Trier les mots par fréquence puis par ordre alphabétique pour les mêmes fréquences
+        sorted_words = sorted(local_word_freq.items(), key=lambda x: (-x[1],x[0]))
+
+        dict_local_word_freq = {}
+        ind = 0
+        # Attribuer des indices en fonction de la fréquence
+        for _, (word, _) in enumerate(sorted_words):
+            if word not in dict_local_word_freq:
+                dict_local_word_freq[word] = ind
+                ind += 1
+                
         # Retourne le dictionnaire de fréquence locale des mots
-        return local_word_freq
+        return dict_local_word_freq
 
     def tokenize(self, list_of_texts):
         total_texts = len(list_of_texts)
@@ -151,6 +149,7 @@ class WordTokenizer:
         print("\nTokenisation terminée.")
         return token_arrays,local_occs, token_pos,token_size
 
+
 def get_data_book(fichier,chemin_fichier):
     with open(chemin_fichier, "r", encoding="utf-8") as f:
         texte = f.read()
@@ -177,13 +176,13 @@ def get_data_books(chemin):
 
     return books, y
 
-
 # Fonction pour diviser une liste en segments avec padding
 def diviser_liste(liste, labels, taille):
     resultats = []
     res_labels = []
     nb_sequence_per_book = []
     ind = 0
+
     # Parcours de chaque sous-liste dans la liste principale
     for sous_liste in liste:
         longueur = len(sous_liste)
@@ -281,7 +280,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         model_path = sys.argv[2]
     # Chargement du modèle
-    model = load_model(model_path, custom_objects={'metric': accuracy_with_tolerance(20)})
+    model = load_model(model_path, custom_objects={'accuracy': accuracy_with_tolerance(25)})
 
     # Afficher le résumé du modèle
     model.summary()
@@ -311,7 +310,8 @@ if __name__ == "__main__":
         data_testD = diviser_liste2(sequences_testD, max_len)
         test = [data_testA, data_testB, data_testC, data_testD]
         predictions = model.predict(test)
-        model.evaluate(test, y_test)
+
+        loss_test, mae_test,accuracy_test = model.evaluate(test, y_test)
 
         predicted_book_date = np.zeros(len(sequence_count_book_test))
         true_book_date = np.zeros(len(sequence_count_book_test))
@@ -351,13 +351,6 @@ if __name__ == "__main__":
         # Calculer la MAE pour les livres
         mae_book = diff_total / len(sequence_count_book_test)
 
-        print("MAE (Mean Absolute Error):", mae_book)
-
-
-        # Prédiction des dates
-        y_pred = model.predict(test)
-
-        error_samples = []  # Liste pour stocker les échantillons en dehors de la tolérance
         tolerance = 25  # Tolérance définie pour considérer les prédictions comme correctes
         within_tolerance_count = 0  # Compteur pour les prédictions dans la tolérance
 
@@ -369,6 +362,11 @@ if __name__ == "__main__":
         # Calcul de l'exactitude dans la tolérance
         accuracy_within_tolerance_book = (within_tolerance_count / len(predicted_book_date)) * 100
 
-        print("Accuracy within tolerance:", accuracy_within_tolerance_book, "%")
+        # Affichage des résultats
+        print(f"MSE (Mean Square Error): {loss_test:.4f}")
+        print(f"MAE (Mean Absolute Error): {mae_test:.4f}")
+        print(f"Sequence Accuracy within tolerance: {accuracy_test:.4f}")
+        print(f"MAE Book (Mean Absolute Error): {mae_book[0]:.4f}")
+        print(f"Book Accuracy within tolerance: {accuracy_within_tolerance_book:.2f}%")
     else:
         print("Le chemin spécifié n'est ni un fichier ni un dossier.")
