@@ -1,0 +1,2 @@
+max_len,included_branches,use_embedding,embedding_dim,count_conv1D,conv1D_1_filters,conv1D_1_kernel,pool_size,dense_units_branch,dense_units,dropout
+10000,"A,B,C,D",True,100,3,"[32,32,32]","[9,9,9]",2,32,64,"0,3"
