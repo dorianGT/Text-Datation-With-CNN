@@ -13,6 +13,7 @@ Si vous avez d'autres livres (ou si vous souhaitez réaliser une séparation des
 ajoutez-les manuellement dans les dossiers appropriés.
 
 Cette opération prend en moyenne 15 minutes mais n'est pas à répéter si les données ne change pas.
+Si les données ont déjà été créées, cette commande va écraser les anciennes données par les nouvelles.
 
 ----------------Entraînement des modèles----------------
 
